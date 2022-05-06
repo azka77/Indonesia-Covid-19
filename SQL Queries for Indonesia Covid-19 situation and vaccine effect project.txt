@@ -1,0 +1,40 @@
+--show all indonesia data
+select *
+from portofolio_project..covid1 a left join portofolio_project..covid2 b on a.data_number = b.data_number 
+where location like 'indonesia'
+
+--South East Asia Second Vaccine Data Percentage of Population each Country
+select distinct a.location, round(max(b.people_fully_vaccinated/a.population)*100, 2) as '2nd vaccine', round(max(b.total_boosters/a.population)*100,2) as '3rd vaccine'
+from portofolio_project..covid1 a left join portofolio_project..covid2 b on a.data_number = b.data_number 
+where a.location like 'indonesia' or a.location like 'malaysia' or location like 'thailand' or a.location like 'vietnam' or a.location like 'myanmar' 
+or a.location like 'singapore' or location like 'laos' or a.location like 'cambodia' or a.location like 'brunei%' or a.location like 'phil%'
+group by a.location, b.population_density
+order by '2nd vaccine' desc
+
+--Death Percentage of The Last Covid-19 Case Data Taken (2022-04-29)
+select a.location, a.date, round((a.total_deaths/a.total_cases)*100, 2) as 'death percentage'
+from portofolio_project..covid1 a left join portofolio_project..covid2 b on a.data_number = b.data_number
+where a.location like 'indonesia' or a.location like 'malaysia' or location like 'thailand' or a.location like 'vietnam' or a.location like 'myanmar' 
+or a.location like 'singapore' or location like 'laos' or a.location like 'cambodia' or a.location like 'brunei%' or a.location like 'phil%'
+and a.date like '2022-04-29' 
+order by a.date desc, [death percentage] offset 0 rows fetch next 10 rows only
+
+----Indonesia 2nd Vaccine Comparation with New Cases, New Deaths, and Death Percentage Each Day
+select a. data_number, a.location, a.date, a.new_cases, a.new_deaths, round((a.total_deaths/a.total_cases)*100, 2) as 'death percentage', 
+round((b.people_fully_vaccinated/a.population)*100, 2) as '2nd vaccine', round((b.total_boosters/a.population)*100, 2) as '3rd vaccine'
+from portofolio_project..covid1 a left join portofolio_project..covid2 b on a.data_number = b.data_number 
+where location like 'indonesia'
+order by a.data_number asc
+
+--To see highest new_deaths before vaccine effect (new deaths = 2069, vaccine 6,75%)
+select (cast(a.new_deaths as int)), a.date, round((b.people_fully_vaccinated/a.population)*100, 2) as '2nd vaccine'
+from portofolio_project..covid1 a left join portofolio_project..covid2 b on a.data_number = b.data_number 
+where location like 'indonesia'
+order by (cast(a.new_deaths as int)) desc, [2nd vaccine] offset 0 rows fetch next 1 rows only
+
+--To see highest new_deaths before vaccine effect (new deaths = 401, vaccine = 53,77%)
+select (cast(a.new_deaths as int)), a.date, round((b.people_fully_vaccinated/a.population)*100, 2) as '2nd vaccine'
+from portofolio_project..covid1 a left join portofolio_project..covid2 b on a.data_number = b.data_number 
+where location like 'indonesia'
+and a.date > '2021-12-01'
+order by (cast(a.new_deaths as int)) desc, [2nd vaccine] offset 0 rows fetch next 1 rows only
